@@ -52,41 +52,38 @@ class _SignInFormState extends State<SignInForm> with ValidationMixin {
       });
 
       _formKey.currentState!.save();
-      var sessionInfo = ApiService.login(uid, password).then((result) {
-        print('sessionInfo: ${result!.accessToken}');
+      ApiService.login(uid, password).then((result) {
+        if (result != null) {
+          print('sessionInfo: ${result.accessToken}');
+
+          success.fire();
+
+          setState(() {
+            isShowLoading = false;
+          });
+
+          confetti.fire();
+
+          Future.delayed(const Duration(seconds: 1), () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const UserListScreen(),
+              ),
+            );
+          });
+        } else {
+          print('login_failed...');
+
+          error.fire();
+
+          setState(() {
+            isShowLoading = false;
+          });
+
+          reset.fire();
+        }
       });
-
-      Future.delayed(
-        const Duration(seconds: 1),
-        () {
-          if (sessionInfo != null) {
-            success.fire();
-
-            setState(() {
-              isShowLoading = false;
-            });
-
-            confetti.fire();
-
-            Future.delayed(const Duration(seconds: 1), () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const UserListScreen(),
-                ),
-              );
-            });
-          } else {
-            error.fire();
-
-            setState(() {
-              isShowLoading = false;
-            });
-
-            reset.fire();
-          }
-        },
-      );
     }
   }
 
