@@ -20,6 +20,7 @@ class AttnKareManagerApp extends StatelessWidget {
       home: const Scaffold(
         // body: testSplash(),
         body: OnbodingScreen(),
+        // body: AnimatedScreen(),
       ),
     );
   }
