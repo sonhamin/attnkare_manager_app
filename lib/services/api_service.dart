@@ -4,6 +4,7 @@ import 'package:attnkare_manager_app/models/session_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../models/job_model.dart';
 import '../models/user_info_model.dart';
 
 class ApiService {
@@ -102,5 +103,34 @@ class ApiService {
       }
     }
     return patientInfoInstances;
+  }
+
+  static Future<List<JobModel?>> getJobList() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? accessToken = prefs.getString('accessToken');
+
+    Map<String, String> headers = {
+      'Content-Type': 'application/json',
+      'Authorization': accessToken!,
+    };
+
+    List<JobModel> jobInfoInstances = [];
+    const userId = 10;
+    const subscriptionId = 10;
+
+    final url = Uri.parse(
+        "$baseUrl/manager/users/$userId/subscriptions/$subscriptionId/jobs");
+    var response = await http.get(
+      url,
+      headers: headers,
+    );
+    if (response.statusCode == 200) {
+      final dynamic jobInfos = jsonDecode(response.body);
+      for (var job in jobInfos['data']['jobs']) {
+        final instance = JobModel.fromJson(job);
+        jobInfoInstances.add(instance);
+      }
+    }
+    return jobInfoInstances;
   }
 }
