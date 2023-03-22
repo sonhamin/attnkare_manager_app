@@ -13,23 +13,20 @@ class UserListScreen extends StatefulWidget {
 }
 
 class _UserListScreenState extends State<UserListScreen> {
-  final Map<String, dynamic> user = {'id': null, 'name': 'Elixian', 'age': 20};
-
-  late Future<List<UserInfoModel?>> userInfoList;
+  late Future<UserInfoModel?> managerInfo;
   late final SharedPreferences prefs;
 
   @override
   void initState() {
     super.initState();
 
-    userInfoList = ApiService.getUserInfoList('1');
-
     initPref();
   }
 
-  Future initPref() async {
-    prefs = await SharedPreferences.getInstance();
-    final likedToons = prefs.getStringList('liked');
+  void initPref() {
+    ApiService.getManagerInfo().then((value) => print('then : $value'));
+
+    managerInfo = ApiService.getManagerInfo();
 
     setState(() {});
   }
@@ -44,7 +41,7 @@ class _UserListScreenState extends State<UserListScreen> {
         automaticallyImplyLeading: false,
         actions: const [],
         title: const Text(
-          'User List',
+          'Children',
           style: TextStyle(
             fontSize: 30,
             fontWeight: FontWeight.w600,
@@ -53,14 +50,25 @@ class _UserListScreenState extends State<UserListScreen> {
           ),
         ),
       ),
-      body: ListView.builder(
-        itemCount: 100,
-        cacheExtent: 20.0,
-        controller: ScrollController(),
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        itemBuilder: (BuildContext context, int index) {
-          user['id'] = index;
-          return UserCard(user: user);
+      body: FutureBuilder(
+        future: ApiService.getPatientList(),
+        builder: (context, snapshot) {
+          if (snapshot.data == null) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          } else {
+            List<UserInfoModel?> patients = snapshot.data!;
+            return ListView.builder(
+              itemCount: patients.length,
+              cacheExtent: 20.0,
+              controller: ScrollController(),
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              itemBuilder: (BuildContext context, int index) {
+                return UserCard(user: patients[index]!);
+              },
+            );
+          }
         },
       ),
     );
@@ -68,23 +76,21 @@ class _UserListScreenState extends State<UserListScreen> {
 }
 
 class UserCard extends StatelessWidget {
-  final Map<String, dynamic> user;
+  final UserInfoModel user;
 
   const UserCard({super.key, required this.user});
 
   @override
   Widget build(BuildContext context) {
-    var itemId = user['id'];
+    var itemId = user.id;
 
     return GestureDetector(
       onTap: () {
         Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => const UserDetailScreen(
-                title: 'titleLarge',
-                thumb: 'thumb',
-                id: 'id',
+              builder: (context) => UserDetailScreen(
+                user: user,
               ),
             ));
       },
@@ -94,13 +100,34 @@ class UserCard extends StatelessWidget {
           leading: CircleAvatar(
             backgroundColor: Colors.primaries[itemId % Colors.primaries.length],
           ),
-          title: Text(
-            'Item $itemId',
-            key: Key('text_$itemId'),
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                user.nameAsterisk ?? 'noname',
+                key: Key('name_${user.id}'),
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w400,
+                  fontFamily: "Poppins",
+                ),
+              ),
+              Text(
+                user.uid,
+                key: Key('uid_${user.id}'),
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w300,
+                  fontFamily: "Poppins",
+                ),
+              )
+            ],
           ),
           trailing: IconButton(
-            key: Key('icon_$itemId'),
-            icon: const Icon(Icons.favorite),
+            key: Key('icon_${user.id}'),
+            icon: user.gender == Gender.male
+                ? const Icon(Icons.male_rounded)
+                : const Icon(Icons.female_rounded),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(

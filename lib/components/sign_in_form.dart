@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:rive/rive.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../screens/users/user_list_screen.dart';
 import '../services/api_service.dart';
@@ -52,7 +53,7 @@ class _SignInFormState extends State<SignInForm> with ValidationMixin {
       });
 
       _formKey.currentState!.save();
-      ApiService.login(uid, password).then((result) {
+      ApiService.login(uid, password).then((result) async {
         if (result != null) {
           print('sessionInfo: ${result.accessToken}');
 
@@ -63,6 +64,9 @@ class _SignInFormState extends State<SignInForm> with ValidationMixin {
           });
 
           confetti.fire();
+
+          var prefs = await SharedPreferences.getInstance();
+          prefs.setString('accessToken', result.accessToken);
 
           Future.delayed(const Duration(seconds: 1), () {
             Navigator.push(
