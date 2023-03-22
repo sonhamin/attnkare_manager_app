@@ -24,8 +24,6 @@ class _UserListScreenState extends State<UserListScreen> {
   }
 
   void initPref() {
-    ApiService.getManagerInfo().then((value) => print('then : $value'));
-
     managerInfo = ApiService.getManagerInfo();
 
     setState(() {});
@@ -39,7 +37,12 @@ class _UserListScreenState extends State<UserListScreen> {
         backgroundColor: Colors.white70,
         foregroundColor: Colors.green.shade700,
         automaticallyImplyLeading: false,
-        actions: const [],
+        actions: [
+          IconButton(
+            onPressed: onPressed,
+            icon: const Icon(Icons.add_circle_outline_outlined),
+          ),
+        ],
         title: const Text(
           'Children',
           style: TextStyle(
@@ -73,6 +76,8 @@ class _UserListScreenState extends State<UserListScreen> {
       ),
     );
   }
+
+  void onPressed() {}
 }
 
 class UserCard extends StatelessWidget {
@@ -99,6 +104,9 @@ class UserCard extends StatelessWidget {
         child: ListTile(
           leading: CircleAvatar(
             backgroundColor: Colors.primaries[itemId % Colors.primaries.length],
+            backgroundImage: const NetworkImage(
+              'https://static.thenounproject.com/png/2934238-200.png',
+            ),
           ),
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

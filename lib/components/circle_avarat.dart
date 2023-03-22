@@ -6,7 +6,7 @@ class CircleImageWidget extends StatelessWidget {
 
   const CircleImageWidget({
     Key? key,
-    required this.imageUrl,
+    this.imageUrl = 'https://static.thenounproject.com/png/2934238-200.png',
   }) : super(key: key);
 
   @override

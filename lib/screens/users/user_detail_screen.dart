@@ -38,7 +38,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
         actions: [
           IconButton(
             onPressed: onPressed,
-            icon: const Icon(Icons.upload_file_rounded),
+            icon: const Icon(Icons.add_a_photo_outlined),
           ),
         ],
         title: Text(
@@ -62,10 +62,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: const [
-                  CircleImageWidget(
-                    imageUrl:
-                        'https://static.thenounproject.com/png/2934238-200.png',
-                  ),
+                  CircleImageWidget(),
                 ],
               ),
               const SizedBox(

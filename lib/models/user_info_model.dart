@@ -14,8 +14,8 @@ enum UserType {
 }
 
 enum Gender {
-  male,
   female,
+  male,
   none;
 
   factory Gender.userGender(int? gender) {
