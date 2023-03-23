@@ -16,6 +16,8 @@ class _UserListScreenState extends State<UserListScreen> {
   late Future<UserInfoModel?> managerInfo;
   late final SharedPreferences prefs;
 
+  final TextEditingController textController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -25,8 +27,14 @@ class _UserListScreenState extends State<UserListScreen> {
 
   void initPref() {
     managerInfo = ApiService.getManagerInfo();
+    // setState(() {});
+  }
 
-    setState(() {});
+  @override
+  void dispose() {
+    super.dispose();
+
+    textController.dispose();
   }
 
   @override
@@ -39,7 +47,7 @@ class _UserListScreenState extends State<UserListScreen> {
         automaticallyImplyLeading: false,
         actions: [
           IconButton(
-            onPressed: onPressed,
+            onPressed: () => onPressed(context),
             icon: const Icon(Icons.add_circle_outline_outlined),
           ),
         ],
@@ -77,7 +85,107 @@ class _UserListScreenState extends State<UserListScreen> {
     );
   }
 
-  void onPressed() {}
+  void onPressed(BuildContext context) {
+    List<dynamic> patients = [];
+
+    showModalBottomSheet(
+        isScrollControlled: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(15.0)),
+        ),
+        context: context,
+        builder: (context) {
+          //3
+          return StatefulBuilder(
+              builder: (BuildContext context, StateSetter bottomState) {
+            return DraggableScrollableSheet(
+                initialChildSize: 0.6,
+                minChildSize: 0.4,
+                maxChildSize: 0.8,
+                expand: false,
+                builder: (BuildContext context, ScrollController controller) {
+                  return Column(children: [
+                    Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Row(children: [
+                        Expanded(
+                            child: TextField(
+                          controller: textController,
+                          decoration: InputDecoration(
+                            contentPadding: const EdgeInsets.all(8),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15.0),
+                              borderSide: const BorderSide(),
+                            ),
+                            prefixIcon: const Icon(Icons.search),
+                          ),
+                          onChanged: (value) {
+                            if (value.length > 1) {
+                              searchPatient(value).then((value) {
+                                patients.clear();
+                                patients.addAll(value);
+                                bottomState(() {});
+                                setState(() {});
+                              });
+                            }
+                          },
+                        )),
+                        IconButton(
+                          icon: const Icon(Icons.clear_rounded),
+                          color: const Color(0xFF1F91E7),
+                          onPressed: () {
+                            setState(() {
+                              textController.clear();
+                              patients.clear();
+                            });
+                          },
+                        ),
+                      ]),
+                    ),
+                    Expanded(
+                      child: ListView.separated(
+                        controller: controller,
+                        itemCount: patients.length,
+                        separatorBuilder: (context, index) {
+                          return const Divider();
+                        },
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 8.0, horizontal: 20.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  patients[index].name ?? '',
+                                  style: const TextStyle(
+                                    fontFamily: 'Inter-Regular',
+                                    fontSize: 24,
+                                  ),
+                                ),
+                                IconButton(
+                                  onPressed: () {
+                                    ApiService.regisgerPatient(
+                                        patients[index].id);
+                                    Navigator.pop(context);
+                                  },
+                                  icon: const Icon(Icons.person_2_rounded),
+                                )
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    )
+                  ]);
+                });
+          });
+        }).whenComplete(() => ApiService.getPatientList());
+  }
+}
+
+Future<List> searchPatient(String term) async {
+  return await ApiService.searchPatient(term, 5);
 }
 
 class UserCard extends StatelessWidget {
