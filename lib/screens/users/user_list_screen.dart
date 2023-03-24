@@ -14,6 +14,7 @@ class UserListScreen extends StatefulWidget {
 
 class _UserListScreenState extends State<UserListScreen> {
   late Future<UserInfoModel?> managerInfo;
+  late Future<List<UserInfoModel?>> patientInfoList;
   late final SharedPreferences prefs;
 
   final TextEditingController textController = TextEditingController();
@@ -27,6 +28,7 @@ class _UserListScreenState extends State<UserListScreen> {
 
   void initPref() {
     managerInfo = ApiService.getManagerInfo();
+    patientInfoList = ApiService.getPatientList();
     // setState(() {});
   }
 
@@ -180,7 +182,12 @@ class _UserListScreenState extends State<UserListScreen> {
                   ]);
                 });
           });
-        }).whenComplete(() => ApiService.getPatientList());
+        }).whenComplete(() {
+      setState(() {
+        // ApiService.getPatientList();
+        // 다시 조회하지 않아도 FutureBuilder를 setState하면 다시 build()한다.
+      });
+    });
   }
 }
 

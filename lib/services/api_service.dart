@@ -158,12 +158,10 @@ class ApiService {
 
     if (response.statusCode == 200) {
       final dynamic registeredPatient = jsonDecode(response.body);
-      print('registeredPatient: $registeredPatient');
       regisgterPatientInstance =
           RegisterPatientModel.fromJson(registeredPatient['data']['patient']);
     }
 
-    print('regisgterPatientInstance: $regisgterPatientInstance');
     return regisgterPatientInstance;
   }
 }

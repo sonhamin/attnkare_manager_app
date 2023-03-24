@@ -37,7 +37,6 @@ dependencies:
   cupertino_icons: ^1.0.5
   rive: ^0.10.2
   flutter_svg: ^2.0.2
-  http: ^0.13.5
   shared_preferences: ^2.0.18
   badges: ^3.0.2
 
