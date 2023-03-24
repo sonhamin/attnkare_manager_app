@@ -1,6 +1,8 @@
+import 'package:attnkare_manager_app/changenotifier/manager_info_notifier.dart';
 import 'package:attnkare_manager_app/models/user_info_model.dart';
 import 'package:attnkare_manager_app/screens/users/user_detail_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../services/api_service.dart';
@@ -89,7 +91,6 @@ class _UserListScreenState extends State<UserListScreen> {
 
   void onPressed(BuildContext context) {
     List<dynamic> patients = [];
-
     showModalBottomSheet(
         isScrollControlled: true,
         shape: const RoundedRectangleBorder(
@@ -206,13 +207,17 @@ class UserCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => UserDetailScreen(
-                user: user,
-              ),
-            ));
+        Navigator.push(context, MaterialPageRoute(
+          builder: (context) {
+            return ChangeNotifierProvider<ManagerInfoChangeNotifier>.value(
+                value: ManagerInfoChangeNotifier(),
+                builder: (context, _) {
+                  return UserDetailScreen(
+                    user: user,
+                  );
+                });
+          },
+        ));
       },
       child: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -267,3 +272,4 @@ class UserCard extends StatelessWidget {
     );
   }
 }
+// bluekare_doctor

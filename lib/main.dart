@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'dart:developer' as devtools show log;
 
 import 'screens/onboarding/onboding_screen.dart';
+
+extension Log on Object {
+  void log() => devtools.log(toString());
+}
 
 void main() {
   runApp(const AttnKareManagerApp());

@@ -2,9 +2,11 @@ import 'package:attnkare_manager_app/components/job_card.dart';
 import 'package:attnkare_manager_app/models/job_model.dart';
 import 'package:attnkare_manager_app/services/api_service.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:badges/badges.dart' as badges;
 
+import '../../changenotifier/manager_info_notifier.dart';
 import '../../components/circle_avarat.dart';
 import '../../models/user_info_model.dart';
 
@@ -21,8 +23,6 @@ class UserDetailScreen extends StatefulWidget {
 }
 
 class _UserDetailScreenState extends State<UserDetailScreen> {
-  late final UserInfoModel user;
-
   late final SharedPreferences prefs;
   bool isLiked = false;
 
@@ -32,7 +32,15 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    Provider.of<ManagerInfoChangeNotifier>(context).doManagerInfo();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    widget.user.id.log();
+    final managerProvider = Provider.of<ManagerInfoChangeNotifier>(context);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -123,7 +131,8 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
               FutureBuilder(
-                future: ApiService.getJobList(),
+                future: ApiService.getJobList(
+                    widget.user.id, managerProvider.subscribeModel?.id ?? 20),
                 builder: (context, snapshot) {
                   if (snapshot.data == null) {
                     return const Center(

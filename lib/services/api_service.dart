@@ -1,12 +1,18 @@
 import 'dart:convert';
+import 'dart:developer' as devtools show log;
 
 import 'package:attnkare_manager_app/models/register_patient.dart';
-import 'package:attnkare_manager_app/models/session_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/job_model.dart';
+import '../models/session_model.dart';
+import '../models/subscribe_model.dart';
 import '../models/user_info_model.dart';
+
+extension Log on Object {
+  void log() => devtools.log(toString());
+}
 
 class ApiService {
   static const String baseUrl = "http://jdi.bitzflex.com:4007/api/v2";
@@ -33,15 +39,22 @@ class ApiService {
       },
     });
 
-    var response = await http.post(
-      url,
-      headers: {'Content-type': 'application/json'},
-      body: body,
-    );
+    try {
+      var response = await http.post(
+        url,
+        headers: {'Content-type': 'application/json'},
+        body: body,
+      );
 
-    if (response.statusCode == 200) {
-      final dynamic session = jsonDecode(response.body);
-      sessionInstance = SessionModel.fromJson(session);
+      if (response.statusCode == 200) {
+        final dynamic session = jsonDecode(response.body);
+        sessionInstance = SessionModel.fromJson(session);
+      } else {
+        url.log();
+        response.statusCode.log();
+      }
+    } catch (e) {
+      e.log();
     }
 
     return sessionInstance;
@@ -53,15 +66,23 @@ class ApiService {
     UserInfoModel? userInfoInstance;
     final url = Uri.parse("$baseUrl/manager/info");
 
-    var response = await http.get(
-      url,
-      headers: headers,
-    );
+    try {
+      var response = await http.get(
+        url,
+        headers: headers,
+      );
 
-    if (response.statusCode == 200) {
-      final dynamic userDetail = jsonDecode(response.body);
-      userInfoInstance = UserInfoModel.fromJson(userDetail['data']['user']);
+      if (response.statusCode == 200) {
+        final dynamic userDetail = jsonDecode(response.body);
+        userInfoInstance = UserInfoModel.fromJson(userDetail['data']['user']);
+      } else {
+        url.log();
+        response.statusCode.log();
+      }
+    } catch (e) {
+      e.log();
     }
+
     return userInfoInstance;
   }
 
@@ -70,15 +91,23 @@ class ApiService {
     UserInfoModel? userInfoInstance;
     final url = Uri.parse("$baseUrl/manager/users/$id");
 
-    var response = await http.get(
-      url,
-      headers: headers,
-    );
+    try {
+      var response = await http.get(
+        url,
+        headers: headers,
+      );
 
-    if (response.statusCode == 200) {
-      final dynamic userDetail = jsonDecode(response.body);
-      userInfoInstance = UserInfoModel.fromJson(userDetail['data']['user']);
+      if (response.statusCode == 200) {
+        final dynamic userDetail = jsonDecode(response.body);
+        userInfoInstance = UserInfoModel.fromJson(userDetail['data']['user']);
+      } else {
+        url.log();
+        response.statusCode.log();
+      }
+    } catch (e) {
+      e.log();
     }
+
     return userInfoInstance;
   }
 
@@ -87,18 +116,26 @@ class ApiService {
     List<UserInfoModel> patientInfoInstances = [];
     final url = Uri.parse("$baseUrl/manager/chosen");
 
-    var response = await http.get(
-      url,
-      headers: headers,
-    );
+    try {
+      var response = await http.get(
+        url,
+        headers: headers,
+      );
 
-    if (response.statusCode == 200) {
-      final dynamic userDetails = jsonDecode(response.body);
-      for (var user in userDetails['data']['patients']) {
-        final instance = UserInfoModel.fromJson(user);
-        patientInfoInstances.add(instance);
+      if (response.statusCode == 200) {
+        final dynamic userDetails = jsonDecode(response.body);
+        for (var user in userDetails['data']['patients']) {
+          final instance = UserInfoModel.fromJson(user);
+          patientInfoInstances.add(instance);
+        }
+      } else {
+        url.log();
+        response.statusCode.log();
       }
+    } catch (e) {
+      e.log();
     }
+
     return patientInfoInstances;
   }
 
@@ -107,42 +144,57 @@ class ApiService {
     Map<String, String> headers = await _generateHeaders();
     List<UserInfoModel> patientInfoInstances = [];
 
-    final url =
-        Uri.parse("$baseUrl/manager/search?query=$term&service=$servieType");
-    var response = await http.get(
-      url,
-      headers: headers,
-    );
+    try {
+      final url =
+          Uri.parse("$baseUrl/manager/search?query=$term&service=$servieType");
+      var response = await http.get(
+        url,
+        headers: headers,
+      );
 
-    if (response.statusCode == 200) {
-      final dynamic userDetails = jsonDecode(response.body);
-      for (var user in userDetails['data']['patients']) {
-        final instance = UserInfoModel.fromJson(user);
-        patientInfoInstances.add(instance);
+      if (response.statusCode == 200) {
+        final dynamic userDetails = jsonDecode(response.body);
+        for (var user in userDetails['data']['patients']) {
+          final instance = UserInfoModel.fromJson(user);
+          patientInfoInstances.add(instance);
+        }
+      } else {
+        url.log();
+        response.statusCode.log();
       }
+    } catch (e) {
+      e.log();
     }
+
     return patientInfoInstances;
   }
 
-  static Future<List<JobModel?>> getJobList() async {
+  static Future<List<JobModel?>> getJobList(
+      [int userId = 10, int subscriptionId = 10]) async {
     Map<String, String> headers = await _generateHeaders();
     List<JobModel> jobInfoInstances = [];
-    const userId = 10;
-    const subscriptionId = 10;
 
-    final url = Uri.parse(
-        "$baseUrl/manager/users/$userId/subscriptions/$subscriptionId/jobs");
-    var response = await http.get(
-      url,
-      headers: headers,
-    );
-    if (response.statusCode == 200) {
-      final dynamic jobInfos = jsonDecode(response.body);
-      for (var job in jobInfos['data']['jobs']) {
-        final instance = JobModel.fromJson(job);
-        jobInfoInstances.add(instance);
+    try {
+      final url = Uri.parse(
+          "$baseUrl/manager/users/$userId/subscriptions/$subscriptionId/jobs");
+      var response = await http.get(
+        url,
+        headers: headers,
+      );
+      if (response.statusCode == 200) {
+        final dynamic jobInfos = jsonDecode(response.body);
+        for (var job in jobInfos['data']['jobs']) {
+          final instance = JobModel.fromJson(job);
+          jobInfoInstances.add(instance);
+        }
+      } else {
+        url.log();
+        response.statusCode.log();
       }
+    } catch (e) {
+      e.log();
     }
+
     return jobInfoInstances;
   }
 
@@ -151,17 +203,51 @@ class ApiService {
     RegisterPatientModel? regisgterPatientInstance;
     final url = Uri.parse("$baseUrl/manager/choose/$id");
 
-    var response = await http.post(
-      url,
-      headers: headers,
-    );
+    try {
+      var response = await http.post(
+        url,
+        headers: headers,
+      );
 
-    if (response.statusCode == 200) {
-      final dynamic registeredPatient = jsonDecode(response.body);
-      regisgterPatientInstance =
-          RegisterPatientModel.fromJson(registeredPatient['data']['patient']);
+      if (response.statusCode == 200) {
+        final dynamic registeredPatient = jsonDecode(response.body);
+        regisgterPatientInstance =
+            RegisterPatientModel.fromJson(registeredPatient['data']['patient']);
+      } else {
+        url.log();
+        response.statusCode.log();
+      }
+    } catch (e) {
+      e.log();
     }
 
     return regisgterPatientInstance;
+  }
+
+  static Future<SubscribeModel?> getSubscribeInfo(int id) async {
+    Map<String, String> headers = await _generateHeaders();
+    SubscribeModel? subscribeInstance;
+    final url = Uri.parse("$baseUrl/manager/users/$id/subscriptions");
+
+    try {
+      var response = await http.post(
+        url,
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        final dynamic subscribe = jsonDecode(response.body);
+        subscribeInstance =
+            SubscribeModel.fromJson(subscribe['data']['subscriptions']);
+      } else {
+        url.log();
+        response.statusCode.log();
+      }
+    } catch (e) {
+      url.log();
+      e.log();
+    }
+
+    return subscribeInstance;
   }
 }
