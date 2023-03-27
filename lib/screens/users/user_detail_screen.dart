@@ -10,9 +10,8 @@ import '../../models/user_info_model.dart';
 
 class UserDetailScreen extends StatefulWidget {
   final UserInfoModel user;
-  dynamic _managerProvider;
 
-  UserDetailScreen({
+  const UserDetailScreen({
     super.key,
     required this.user,
   });
@@ -23,24 +22,11 @@ class UserDetailScreen extends StatefulWidget {
 
 class _UserDetailScreenState extends State<UserDetailScreen> {
   late final SharedPreferences prefs;
-  bool isLiked = false;
-
   late List<JobModel?> jobList = [];
 
   @override
   void initState() {
     super.initState();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    // ApiService.getSubscribeInfo(widget.user.id)
-    //     .then((user) => ApiService.getSubscribeInfo(user?.id))
-    //     .then((subscription) =>
-    //         ApiService.getJobList(widget.user.id, subscription?.id))
-    //     .then((jobs) => jobList = jobs);
   }
 
   @override
@@ -136,7 +122,6 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
               ),
               FutureBuilder(
                 future: ApiService.getSubscribeInfo(widget.user.id)
-                    .then((user) => ApiService.getSubscribeInfo(user?.id))
                     .then((subscription) =>
                         ApiService.getJobList(widget.user.id, subscription?.id))
                     .then((jobs) => jobList = jobs)

@@ -75,6 +75,11 @@ class ApiService {
       if (response.statusCode == 200) {
         final dynamic userDetail = jsonDecode(response.body);
         userInfoInstance = UserInfoModel.fromJson(userDetail['data']['user']);
+
+        final prefs = await SharedPreferences.getInstance();
+        prefs.setInt('id', userInfoInstance.id);
+        prefs.setString('name', userInfoInstance.name);
+        prefs.setString('uid', userInfoInstance.uid);
       } else {
         url.log();
         response.statusCode.log();
@@ -253,7 +258,10 @@ class ApiService {
     }
 
     return subscriptionInstances.firstWhere(
-      (element) => element?.service.servcieType == serviceCd,
+      (element) {
+        element?.id.log();
+        return element?.service.servcieType == serviceCd;
+      },
       orElse: () => null,
     );
   }

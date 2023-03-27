@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../services/api_service.dart';
+import '../sidebar/nav_drawer.dart';
 
 class UserListScreen extends StatefulWidget {
   const UserListScreen({super.key});
@@ -42,11 +43,12 @@ class _UserListScreenState extends State<UserListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: const SideNavigationDrawer(),
       appBar: AppBar(
         elevation: 4,
         backgroundColor: Colors.white70,
         foregroundColor: Colors.green.shade700,
-        automaticallyImplyLeading: false,
+        automaticallyImplyLeading: true,
         actions: [
           IconButton(
             onPressed: () => onPressed(context),
@@ -66,11 +68,7 @@ class _UserListScreenState extends State<UserListScreen> {
       body: FutureBuilder(
         future: ApiService.getPatientList(),
         builder: (context, snapshot) {
-          if (snapshot.data == null) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          } else {
+          if (snapshot.hasData) {
             List<UserInfoModel?> patients = snapshot.data!;
             return ListView.builder(
               itemCount: patients.length,
@@ -80,6 +78,13 @@ class _UserListScreenState extends State<UserListScreen> {
               itemBuilder: (BuildContext context, int index) {
                 return UserCard(user: patients[index]!);
               },
+            );
+          } else if (snapshot.hasError) {
+            // TODO: Error Handling...
+            return const Text('Error Occured...');
+          } else {
+            return const Center(
+              child: CircularProgressIndicator(),
             );
           }
         },
@@ -218,9 +223,7 @@ class UserCard extends StatelessWidget {
         child: ListTile(
           leading: CircleAvatar(
             backgroundColor: Colors.primaries[itemId % Colors.primaries.length],
-            backgroundImage: const NetworkImage(
-              'https://static.thenounproject.com/png/2934238-200.png',
-            ),
+            backgroundImage: const AssetImage('assets/icons/pig.png'),
           ),
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
