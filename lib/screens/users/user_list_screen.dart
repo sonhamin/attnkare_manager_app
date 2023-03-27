@@ -1,8 +1,6 @@
-import 'package:attnkare_manager_app/changenotifier/manager_info_notifier.dart';
 import 'package:attnkare_manager_app/models/user_info_model.dart';
 import 'package:attnkare_manager_app/screens/users/user_detail_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../services/api_service.dart';
@@ -209,13 +207,9 @@ class UserCard extends StatelessWidget {
       onTap: () {
         Navigator.push(context, MaterialPageRoute(
           builder: (context) {
-            return ChangeNotifierProvider<ManagerInfoChangeNotifier>.value(
-                value: ManagerInfoChangeNotifier(),
-                builder: (context, _) {
-                  return UserDetailScreen(
-                    user: user,
-                  );
-                });
+            return UserDetailScreen(
+              user: user,
+            );
           },
         ));
       },

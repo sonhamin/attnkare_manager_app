@@ -13,8 +13,9 @@ class SubscribeServiceModel {
 
   SubscribeServiceModel.fromJson(Map<String, dynamic> json)
       : id = json['id'],
-        servcieType = json['servcie_type'],
         addr = json['addr'],
         serviceName = json['service_name'],
+        servcieType = json['service_type'],
         description = json['description'];
 }
+// bluekare_doctor

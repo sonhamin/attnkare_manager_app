@@ -55,8 +55,7 @@ class _SignInFormState extends State<SignInForm> with ValidationMixin {
       _formKey.currentState!.save();
       ApiService.login(uid, password).then((result) async {
         if (result != null) {
-          print('sessionInfo: ${result.accessToken}');
-
+          // print('sessionInfo: ${result.accessToken}');
           success.fire();
 
           setState(() {
@@ -77,8 +76,6 @@ class _SignInFormState extends State<SignInForm> with ValidationMixin {
             );
           });
         } else {
-          print('login_failed...');
-
           error.fire();
 
           setState(() {

@@ -170,7 +170,7 @@ class ApiService {
   }
 
   static Future<List<JobModel?>> getJobList(
-      [int userId = 10, int subscriptionId = 10]) async {
+      int userId, int? subscriptionId) async {
     Map<String, String> headers = await _generateHeaders();
     List<JobModel> jobInfoInstances = [];
 
@@ -224,21 +224,25 @@ class ApiService {
     return regisgterPatientInstance;
   }
 
-  static Future<SubscribeModel?> getSubscribeInfo(int id) async {
+  static Future<SubscribeModel?> getSubscribeInfo(int? userId,
+      [int serviceCd = 3231]) async {
     Map<String, String> headers = await _generateHeaders();
-    SubscribeModel? subscribeInstance;
-    final url = Uri.parse("$baseUrl/manager/users/$id/subscriptions");
+    List<SubscribeModel?> subscriptionInstances = [];
+    final url = Uri.parse("$baseUrl/manager/users/$userId/subscriptions");
 
     try {
-      var response = await http.post(
+      var response = await http.get(
         url,
         headers: headers,
       );
 
       if (response.statusCode == 200) {
-        final dynamic subscribe = jsonDecode(response.body);
-        subscribeInstance =
-            SubscribeModel.fromJson(subscribe['data']['subscriptions']);
+        final dynamic subscriptions = jsonDecode(response.body);
+
+        for (var subscription in subscriptions['data']['subscriptions']) {
+          final instance = SubscribeModel.fromJson(subscription);
+          subscriptionInstances.add(instance);
+        }
       } else {
         url.log();
         response.statusCode.log();
@@ -248,6 +252,10 @@ class ApiService {
       e.log();
     }
 
-    return subscribeInstance;
+    return subscriptionInstances.firstWhere(
+      (element) => element?.service.servcieType == serviceCd,
+      orElse: () => null,
+    );
   }
 }
+// bluekare_doctor

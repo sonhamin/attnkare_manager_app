@@ -2,18 +2,17 @@ import 'package:attnkare_manager_app/components/job_card.dart';
 import 'package:attnkare_manager_app/models/job_model.dart';
 import 'package:attnkare_manager_app/services/api_service.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:badges/badges.dart' as badges;
 
-import '../../changenotifier/manager_info_notifier.dart';
 import '../../components/circle_avarat.dart';
 import '../../models/user_info_model.dart';
 
 class UserDetailScreen extends StatefulWidget {
   final UserInfoModel user;
+  dynamic _managerProvider;
 
-  const UserDetailScreen({
+  UserDetailScreen({
     super.key,
     required this.user,
   });
@@ -26,6 +25,8 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
   late final SharedPreferences prefs;
   bool isLiked = false;
 
+  late List<JobModel?> jobList = [];
+
   @override
   void initState() {
     super.initState();
@@ -34,13 +35,16 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    Provider.of<ManagerInfoChangeNotifier>(context).doManagerInfo();
+
+    // ApiService.getSubscribeInfo(widget.user.id)
+    //     .then((user) => ApiService.getSubscribeInfo(user?.id))
+    //     .then((subscription) =>
+    //         ApiService.getJobList(widget.user.id, subscription?.id))
+    //     .then((jobs) => jobList = jobs);
   }
 
   @override
   Widget build(BuildContext context) {
-    widget.user.id.log();
-    final managerProvider = Provider.of<ManagerInfoChangeNotifier>(context);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -131,14 +135,19 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
               FutureBuilder(
-                future: ApiService.getJobList(
-                    widget.user.id, managerProvider.subscribeModel?.id ?? 20),
+                future: ApiService.getSubscribeInfo(widget.user.id)
+                    .then((user) => ApiService.getSubscribeInfo(user?.id))
+                    .then((subscription) =>
+                        ApiService.getJobList(widget.user.id, subscription?.id))
+                    .then((jobs) => jobList = jobs)
+                    .catchError((error) => throw Exception()),
                 builder: (context, snapshot) {
-                  if (snapshot.data == null) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
+                  if (snapshot.hasError) {
+                    return Text(
+                      'There was an error ',
+                      style: Theme.of(context).textTheme.headlineLarge,
                     );
-                  } else {
+                  } else if (snapshot.hasData) {
                     List<JobModel?> jobs = snapshot.data!;
                     return jobs.isEmpty
                         ? Column(
@@ -161,6 +170,10 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                                     ))
                                 .toList(),
                           );
+                  } else {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
                   }
                 },
               ),
@@ -177,3 +190,4 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
     });
   }
 }
+// bluekare_doctor
