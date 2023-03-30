@@ -98,6 +98,13 @@ class _SideNavigationDrawerState extends State<SideNavigationDrawer> {
               title: const Text('About'),
               onTap: () {},
             ),
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Log Out'),
+              onTap: () {
+                Navigator.of(context).popUntil((route) => route.isFirst);
+              },
+            ),
           ],
         ),
       );

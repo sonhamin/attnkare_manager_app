@@ -45,7 +45,7 @@ class _SignInFormState extends State<SignInForm> with ValidationMixin {
     confetti = controller.findInput<bool>("Trigger explosion") as SMITrigger;
   }
 
-  void singIn(BuildContext context) {
+  void signIn(BuildContext context) {
     if (_formKey.currentState!.validate()) {
       setState(() {
         isShowConfetti = true;
@@ -121,7 +121,7 @@ class _SignInFormState extends State<SignInForm> with ValidationMixin {
                 padding: const EdgeInsets.only(top: 8, bottom: 24),
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    singIn(context);
+                    signIn(context);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFF77D8E),
